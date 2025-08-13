@@ -39,8 +39,12 @@ const App = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <FaNewspaper className="text-indigo-500 text-2xl" />
-              <span className="text-xl font-bold text-gray-900">SummAIzer</span>
+              <img
+                src="/newfavicon.png"
+                alt="SummAIzer logo"
+                className="w-9 h-9 object-contain"
+              />
+              <span className="text-2xl font-bold text-gray-900">SummAIzer</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -51,11 +55,10 @@ const App = () => {
                   <button
                     key={item.id}
                     onClick={() => handleNavigation(item.id)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                      currentPage === item.id
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${currentPage === item.id
                         ? 'bg-indigo-500 text-white'
                         : 'text-gray-600 hover:text-indigo-500 hover:bg-indigo-50'
-                    }`}
+                      }`}
                   >
                     <Icon size={16} />
                     <span className="font-medium">{item.name}</span>
@@ -85,11 +88,10 @@ const App = () => {
                     <button
                       key={item.id}
                       onClick={() => handleNavigation(item.id)}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                        currentPage === item.id
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${currentPage === item.id
                           ? 'bg-indigo-500 text-white'
                           : 'text-gray-600 hover:text-indigo-500 hover:bg-indigo-50'
-                      }`}
+                        }`}
                     >
                       <Icon size={18} />
                       <div className="text-left">
@@ -125,10 +127,10 @@ const App = () => {
               <span className="text-lg font-semibold text-gray-900">SummAIzer-AI News Summarizer</span>
             </div>
             <p className="text-gray-600 text-sm">
-              Powered by NewsAPI and OpenAI GPT. 
+              Powered by NewsAPI and OpenAI GPT.
             </p>
             <p className="text-gray-500 text-xs mt-2">
-              © 2024 AI News Summarizer. A modern news reading experience.
+              © 2025 AI News Summarizer. A modern news reading experience.
             </p>
           </div>
         </div>

@@ -65,13 +65,4 @@ npm run dev
 - **API errors**: Verify your API keys are correct
 - **CORS errors**: Ensure backend is running on port 5000
 
-## 📱 Mobile Testing
-
-The app is fully responsive! Test on:
-- Mobile browsers
-- Tablet browsers
-- Desktop browsers
-
----
-
 **Happy coding! 🎉** 
