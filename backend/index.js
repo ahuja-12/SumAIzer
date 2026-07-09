@@ -4,15 +4,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const { OpenAI } = require('openai');
+const Groq = require('groq-sdk');
 
 // API Keys from .env
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
 
-// OpenAI setup
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
+// Grouq setup
+const groq = new Groq({
+  apiKey: GROQ_API_KEY,
 });
 
 // App setup
@@ -58,8 +58,10 @@ app.post('/api/summarize', async (req, res) => {
   try {
     const { content, url } = req.body;
 
-    if (!OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    if (!GROQ_API_KEY) {
+      return res.status(500).json({
+        error: 'Groq API key not configured'
+      });
     }
 
     if (!content && !url) {
@@ -78,16 +80,16 @@ app.post('/api/summarize', async (req, res) => {
       }
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // or "gpt-4" if available and preferred
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that summarizes news articles.",
+          content: "You are a helpful assistant that summarizes news articles."
         },
         {
           role: "user",
-          content: `Summarize this article in 2-3 concise paragraphs:\n\n${textToSummarize}`
+          content: `Summarize this article in 2 concise paragraphs:\n\n${textToSummarize}`
         }
       ],
       temperature: 0.7
@@ -97,7 +99,7 @@ app.post('/api/summarize', async (req, res) => {
     res.json({ summary });
 
   } catch (error) {
-    console.error('OpenAI API Error:', error);
+    console.error('Groq API Error:', error);
     res.status(500).json({ 
       error: 'Failed to summarize article',
       details: error.message || error
