@@ -1,9 +1,25 @@
 @echo off
+cd /d "%~dp0"
 echo 🤖 Starting AI News Summarizer...
 echo.
 
-echo 📦 Installing dependencies...
-call npm run install-all
+if not exist "node_modules\.bin\concurrently.cmd" (
+    echo 📦 Installing root dependencies...
+    call npm install
+    if errorlevel 1 exit /b 1
+)
+
+if not exist "backend\node_modules\.bin\nodemon.cmd" (
+    echo 📦 Installing backend dependencies...
+    call npm install --prefix backend
+    if errorlevel 1 exit /b 1
+)
+
+if not exist "frontend\node_modules\.bin\vite.cmd" (
+    echo 📦 Installing frontend dependencies...
+    call npm install --prefix frontend
+    if errorlevel 1 exit /b 1
+)
 
 echo.
 echo 🔧 Setting up environment...

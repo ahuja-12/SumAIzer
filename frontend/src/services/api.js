@@ -42,7 +42,7 @@ export const newsApi = {
   // Get top headlines
   getTopHeadlines: async () => {
     try {
-      const response = await api.get('/news');
+      const response = await api.get('/api/news');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to fetch news');
@@ -52,7 +52,7 @@ export const newsApi = {
   // Get article content from URL
   getArticleContent: async (url) => {
     try {
-      const response = await api.get('/article-content', { params: { url } });
+      const response = await api.get('/api/article-content', { params: { url } });
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to fetch article content');
@@ -67,8 +67,8 @@ export const openaiApi = {
     try {
       const payload = { content };
       if (url) payload.url = url;
-      
-      const response = await api.post('/summarize', payload);
+
+      const response = await api.post('/api/summarize', payload);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Failed to summarize article');
@@ -79,9 +79,9 @@ export const openaiApi = {
 // Health check
 export const healthCheck = async () => {
   try {
-    const response = await api.get('/health');
+    const response = await api.get('/api/health', { timeout: 3000 });
     return response.data;
-  } catch (error) {
+  } catch {
     throw new Error('Backend server is not responding');
   }
 };

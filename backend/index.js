@@ -9,8 +9,11 @@ const Groq = require('groq-sdk');
 // API Keys from .env
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 
-// Grouq setup
+const groqModels = [GROQ_MODEL, 'groq/compound', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b'];
+
+// Groq setup
 const groq = new Groq({
   apiKey: GROQ_API_KEY,
 });
@@ -53,7 +56,7 @@ app.get('/api/news', async (req, res) => {
   }
 });
 
-// Summarize article using OpenAI API
+// Summarize article using GROQ API
 app.post('/api/summarize', async (req, res) => {
   try {
     const { content, url } = req.body;
@@ -80,22 +83,39 @@ app.post('/api/summarize', async (req, res) => {
       }
     }
 
-    const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant that summarizes news articles."
-        },
-        {
-          role: "user",
-          content: `Summarize this article in 2 concise paragraphs:\n\n${textToSummarize}`
-        }
-      ],
-      temperature: 0.7
-    });
+    let summary = '';
+    let lastError = null;
 
-    const summary = response.choices[0].message.content;
+    for (const model of groqModels) {
+      try {
+        const response = await groq.chat.completions.create({
+          model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful assistant that summarizes news articles.'
+            },
+            {
+              role: 'user',
+              content: `Summarize this article in 2 concise paragraphs:\n\n${textToSummarize}`
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 300
+        });
+
+        summary = response.choices[0].message.content;
+        break;
+      } catch (error) {
+        lastError = error;
+        console.warn(`Groq model failed: ${model}`, error.message || error.body || error);
+      }
+    }
+
+    if (!summary) {
+      throw lastError || new Error('Groq summarization failed');
+    }
+
     res.json({ summary });
 
   } catch (error) {
@@ -126,6 +146,6 @@ app.get('/api/article-content', async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 AI News Summarizer Backend running on port ${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+  console.log(` AI News Summarizer Backend running on port ${PORT}`);
+  console.log(` Health check: http://localhost:${PORT}/api/health`);
 });

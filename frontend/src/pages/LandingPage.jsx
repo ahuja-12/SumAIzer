@@ -8,22 +8,34 @@ const LandingPage = () => {
   const [news, setNews] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isBackendConnected, setIsBackendConnected] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking');
 
-  // Check backend connection on component mount
+  // Retry while the backend is starting or temporarily unavailable.
   useEffect(() => {
-    checkBackendConnection();
-  }, []);
+    let isMounted = true;
+    let retryTimeout;
 
-  const checkBackendConnection = async () => {
-    try {
-      await healthCheck();
-      setIsBackendConnected(true);
-    } catch (err) {
-      setIsBackendConnected(false);
-      console.error('Backend connection failed:', err);
-    }
-  };
+    const checkBackendConnection = async () => {
+      try {
+        await healthCheck();
+        if (isMounted) {
+          setBackendStatus('connected');
+        }
+      } catch {
+        if (isMounted) {
+          setBackendStatus('offline');
+          retryTimeout = setTimeout(checkBackendConnection, 1500);
+        }
+      }
+    };
+
+    checkBackendConnection();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(retryTimeout);
+    };
+  }, []);
 
   const fetchNews = async () => {
     setIsLoading(true);
@@ -55,11 +67,20 @@ const LandingPage = () => {
             {/* Backend Status */}
             <div className="flex items-center space-x-2">
               <div
-                className={`w-3 h-3 rounded-full ${isBackendConnected ? 'bg-green-500' : 'bg-red-500'
-                  }`}
+                className={`w-3 h-3 rounded-full ${
+                  backendStatus === 'connected'
+                    ? 'bg-green-500'
+                    : backendStatus === 'checking'
+                      ? 'bg-yellow-500'
+                      : 'bg-red-500'
+                }`}
               ></div>
               <span className="text-sm text-gray-600">
-                {isBackendConnected ? 'Backend Connected' : 'Backend Offline'}
+                {backendStatus === 'connected'
+                  ? 'Backend Connected'
+                  : backendStatus === 'checking'
+                    ? 'Checking Backend...'
+                    : 'Backend Offline'}
               </span>
             </div>
           </div>
@@ -86,7 +107,7 @@ const LandingPage = () => {
         {/* Button */}
         <button
           onClick={fetchNews}
-          disabled={isLoading || !isBackendConnected}
+          disabled={isLoading || backendStatus !== 'connected'}
           className="flex items-center space-x-2 mx-auto px-8 py-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
         >
           {isLoading ? (
@@ -104,7 +125,7 @@ const LandingPage = () => {
 
         {/* Backend Connection Warning */}
         {
-          !isBackendConnected && (
+          backendStatus === 'offline' && (
             <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center space-x-2">
                 <FaExclamationTriangle className="text-yellow-500" />
