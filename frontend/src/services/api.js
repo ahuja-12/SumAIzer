@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// API base URL - change this to your backend URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const defaultApiBaseUrl = import.meta.env.DEV ? 'http://localhost:5000' : '';
+const API_BASE_URL = (configuredApiBaseUrl || defaultApiBaseUrl)
+  .replace(/\/+$/, '')
+  .replace(/\/api$/i, '');
 
 
 // Create axios instance with default config
@@ -79,7 +82,7 @@ export const openaiApi = {
 // Health check
 export const healthCheck = async () => {
   try {
-    const response = await api.get('/api/health', { timeout: 3000 });
+    const response = await api.get('/api/health');
     return response.data;
   } catch {
     throw new Error('Backend server is not responding');

@@ -130,7 +130,7 @@ const LandingPage = () => {
               <div className="flex items-center space-x-2">
                 <FaExclamationTriangle className="text-yellow-500" />
                 <p className="text-yellow-800">
-                  Backend server is not connected. Please ensure the backend is running on port 5000.
+                  Backend server is unavailable. It may still be starting; reconnecting automatically.
                 </p>
               </div>
             </div>
